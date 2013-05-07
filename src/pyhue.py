@@ -31,9 +31,9 @@ class Bridge(object):
 
 
 class Light(object):
-    def __init__(self, bridge, id):
+    def __init__(self, bridge, _id):
         object.__setattr__(self, 'bridge', bridge)
-        object.__setattr__(self, 'id', id)
+        object.__setattr__(self, 'id', _id)
         route = '/'.join(['lights', self.id])
         result = self.bridge._request('GET', route)
         for key, value in result.items():
