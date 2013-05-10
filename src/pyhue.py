@@ -7,6 +7,10 @@ except ImportError:
     from http.client import HTTPConnection
 
 
+class HueException(Exception):
+    pass
+
+
 class Bridge(object):
     def __init__(self, ip_address, username):
         self.ip_address = ip_address
@@ -14,37 +18,42 @@ class Bridge(object):
 
     def _request(self, method, route, data={}):
         content = json.dumps(data).lower()
-        complete_route = '/'.join([self.base_route, route])
+        str_route = '/'.join(['/api', self.username] + route)
         conn = HTTPConnection(self.ip_address)
-        conn.request(method, complete_route, content)
-        print "%s %s%s %s" % (method, self.ip_address, complete_route, content)
+        conn.request(method, str_route, content)
         return json.loads(conn.getresponse().read())
 
     @property
-    def base_route(self):
-        return '/api/{}'.format(self.username)
-
-    @property
     def lights(self):
-        result = self._request('GET', 'lights')
+        result = self._request('GET', ['lights'])
         return [Light(self, i) for i in result.keys()]
 
 
 class Light(object):
     def __init__(self, bridge, _id):
-        object.__setattr__(self, 'bridge', bridge)
-        object.__setattr__(self, 'id', _id)
-        route = '/'.join(['lights', self.id])
-        result = self.bridge._request('GET', route)
-        for key, value in result.items():
-            if key == "state":
-                for keystate, keyvalue in value.items():
-                    object.__setattr__(self, keystate, keyvalue)
-            else:
-                object.__setattr__(self, key, value)
-                
-    def __setattr__(self, name, value):
-        object.__setattr__(self, name, value)
-        route = '/'.join(['lights', self.id, 'state'])
-        self.bridge._request('PUT', route, {name:value})
+        result = bridge._request('GET', ['lights', _id])
+        if any('error' in x for x in result):
+            raise HueException, result['error']['description']
+        
+        self.bridge = bridge
+        self.id = _id
+        self.state = result.pop('state')
+        self.attrs = result
+        self._initialized = True
 
+    def __put_state(self, state):
+        self.state.update(state)
+        return self.bridge._request('PUT', ['lights', self.id, 'state'], state)
+
+    def __put_name(self, name):
+        self.attrs['name'] = name
+        return self.bridge._request('PUT', ['lights', self.id], {'name': name})
+
+    def __setattr__(self, attr, value):
+        if getattr(self, '_initialized', False):
+            pname, pstate = self.__put_name, self.__put_state
+            result = pname(value) if attr == 'name' else pstate({attr: value})
+            if any('error' in confirmation for confirmation in result):
+                raise HueException, "Invalid attribute"
+        else:
+            object.__setattr__(self, attr, value)

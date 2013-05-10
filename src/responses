@@ -1,0 +1,46 @@
+# GET /api/<username>/lights
+{
+    "1": {
+        "name": "Mock Lamp"
+    }
+}
+# GET /api/<username>/lights/new
+{
+    "2": {"name": "Mock Lamp 2"},
+    "lastscan": "2012-10-29T12:00:00"
+}
+# POST /api/<username>/lights
+[ { "success": { "/lights": "Searching for new devices" } } ]
+# GET /api/<username>/lights/1
+{
+    "state": {
+        "hue": 50000,
+        "on": true,
+        "effect": "none",
+        "alert": "none",
+        "bri": 200,
+        "sat": 200,
+        "ct": 500,
+        "xy": [0.5, 0.5],
+        "reachable": true,
+        "colormode": "hs"
+    },
+    "type": "Living Colors",
+    "name": "LC 1",
+    "modelid": "LC0015",
+    "swversion": "1.0.3",     
+    "pointsymbol": {
+        "1": "none",
+        "2": "none",
+        "3": "none",
+        "4": "none",
+        "5": "none",
+        "6": "none",
+        "7": "none",
+        "8": "none"
+    }
+}
+# POST /api/<username>/lights/1
+[{"success":{}}]
+# PUT /api/<username>/lights/1/state
+[{"success":{}}]
