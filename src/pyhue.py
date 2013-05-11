@@ -123,3 +123,8 @@ class Group(ApiObject):
 
 class Schedule(ApiObject):
     ROUTE = 'schedules'
+
+    def __setattr__(self, attr, value):
+        result = self.set(attr, value)
+        if any('error' in confirmation for confirmation in result):
+            raise HueException, "Invalid attribute"

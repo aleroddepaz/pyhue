@@ -140,7 +140,7 @@ class TestSchedules(unittest.TestCase):
         schedules = self.bridge.schedules
         schedules[0].name = "Another Schedule Name"
         self.assertEqual(MockHTTPConnection.requests[2],
-                         'PUT /api/<username>/schedules/0')
+                         'PUT /api/<username>/schedules/1')
 
     def test_delete_schedule(self):
         schedules = self.bridge.schedules
