@@ -84,6 +84,8 @@ class Light(ApiObject):
         result = self._put_attrs(d) if attr == 'name' else self._put_state(d)
         if any('error' in confirmation for confirmation in result):
             raise HueException, "Invalid attribute"
+        else:
+            object.__setattr__(self, attr, value)
 
 
 class Group(ApiObject):
@@ -94,3 +96,5 @@ class Group(ApiObject):
         result = self._put_attrs(d) if attr in self.attrs else self._put_state(d)
         if any('error' in confirmation for confirmation in result):
             raise HueException, "Invalid attribute"
+        else:
+            object.__setattr__(self, attr, value)

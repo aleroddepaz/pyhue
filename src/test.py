@@ -30,7 +30,6 @@ class MockHTTPConnection(object):
         Mock HTTP request. Adds the method and the route
         of the request to the list of mock requests
         """
-        print '%s %s' % (method, route)
         MockHTTPConnection.requests.append('%s %s' % (method, route))
         
     def getresponse(self):
@@ -68,6 +67,11 @@ class TestLight(unittest.TestCase):
         lights[0].on = True
         self.assertEqual(MockHTTPConnection.requests[2],
                          'PUT /api/<username>/lights/1/state')
+        
+    def test_check_light_state(self):
+        lights = self.bridge.lights
+        lights[0].hue = 0
+        self.assertEqual(lights[0].hue, 0)
 
     def test_set_light_attrs(self):
         lights = self.bridge.lights
@@ -93,6 +97,11 @@ class TestGroups(unittest.TestCase):
         groups[0].on = True
         self.assertEqual(MockHTTPConnection.requests[2],
                          'PUT /api/<username>/groups/1/action')
+ 
+    def test_check_group_state(self):
+        groups = self.bridge.groups
+        groups[0].hue = 0
+        self.assertEqual(groups[0].hue, 0)
     
     def test_set_group_attrs(self):
         groups = self.bridge.groups
