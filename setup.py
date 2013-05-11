@@ -12,7 +12,7 @@ setup(
     url = 'http://alexrdp90.github.com/pyhue',
     download_url = 'http://pypi.python.org/pypi/pyhue',
     py_modules = ['pyhue'],
-    scripts = ['pyhue.py'],
+    scripts = ['src/pyhue.py'],
     classifiers = [
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Programming Language :: Python',

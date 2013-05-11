@@ -1,9 +1,15 @@
 pyhue
 =====
 
-Python library for the Philips Hue personal lighting system
+Python library for the Philips Hue personal lighting system.
 
-**Basic usage:**
+Installation:
+-------------
+
+You can install pyhue with `pip install pyhue` or [download `pyhue.py`](https://raw.github.com/alexrdp90/pyhue/master/src/pyhue.py) and place it in your project directory.
+
+Example
+-------
 
 ```python
 import pyhue
