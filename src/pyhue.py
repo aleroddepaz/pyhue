@@ -1,10 +1,15 @@
 import json
+import logging
 
 
 try:
     from httplib import HTTPConnection
 except ImportError:
     from http.client import HTTPConnection
+
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger('pyhue')
 
 
 class HueException(Exception):
@@ -19,6 +24,9 @@ class Bridge(object):
     def _request(self, method, route, data={}):
         content = json.dumps(data).lower()
         str_route = '/'.join(['/api', self.username] + route)
+        
+        logger.debug('%s %s%s' % (method, self.ip_address, str_route))
+        
         conn = HTTPConnection(self.ip_address)
         conn.request(method, str_route, content)
         return json.loads(conn.getresponse().read())
@@ -131,4 +139,3 @@ class Schedule(ApiObject):
     
     def __del__(self):
         self.bridge._request('DELETE', [self.ROUTE, self.id])
-        return object.__del__(self)

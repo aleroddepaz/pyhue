@@ -1,17 +1,17 @@
-# GET /api/<username>/lights
+# GET /api/username/lights
 {
     "1": {
         "name": "Mock Lamp"
     }
 }
-# GET /api/<username>/lights/new
+# GET /api/username/lights/new
 {
     "2": {"name": "Mock Lamp 2"},
     "lastscan": "2012-10-29T12:00:00"
 }
-# POST /api/<username>/lights
+# POST /api/username/lights
 [ { "success": { "/lights": "Searching for new devices" } } ]
-# GET /api/<username>/lights/1
+# GET /api/username/lights/1
 {
     "state": {
         "hue": 50000,
@@ -40,17 +40,17 @@
         "8": "none"
     }
 }
-# POST /api/<username>/lights/1
+# POST /api/username/lights/1
 [{"success":{}}]
-# PUT /api/<username>/lights/1/state
+# PUT /api/username/lights/1/state
 [{"success":{}}]
-# GET /api/<username>/groups
+# GET /api/username/groups
 {
     "1": {
         "name": "Group 1"
     }
 }
-# GET /api/<username>/groups/1
+# GET /api/username/groups/1
 {
     "action": {
         "on": true,
@@ -69,15 +69,15 @@
     "scenes": {
     }
 }
-# GET /api/<username>/schedules
+# GET /api/username/schedules
 {
   "1":{
       "name":"Wake up"
   }
 }
-# POST /api/<username>/schedules
+# POST /api/username/schedules
 [{ "success":{"id": "2"} }]
-# GET /api/<username>/schedules/1
+# GET /api/username/schedules/1
 {
     "name": "Wake up",
     "description": "My wake up alarm",
@@ -90,7 +90,7 @@
     },
     "time": "2011-03-30T14:24:40"
 }
-# PUT /api/<username>/schedules/1
+# PUT /api/username/schedules/1
 [{ "success": {"/schedules/1/name": "Wake up"}}]
-# DELETE /api/<username>/schedules/1
+# DELETE /api/username/schedules/1
 [{"success": "/schedules/1 deleted."}]
