@@ -82,7 +82,7 @@ class TestGroups(unittest.TestCase):
         
     def test_get_groups(self):
         _ = self.bridge.groups
-        self.assertEqual(MockHTTPConnection.requests[2],
+        self.assertEqual(MockHTTPConnection.requests[0],
                          'GET /api/<username>/groups')
     
     def test_get_group_attrs(self):

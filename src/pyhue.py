@@ -28,6 +28,9 @@ class Bridge(object):
         result = self._request('GET', ['lights'])
         return [Light(self, i) for i in result.keys()]
 
+    @property
+    def groups(self):
+        _ = self._request('GET', ['groups'])
 
 class Light(object):
     def __init__(self, bridge, _id):
