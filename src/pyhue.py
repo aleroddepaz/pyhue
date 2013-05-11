@@ -1,7 +1,7 @@
-import json
-import logging
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-
+import json, logging
 try:
     from httplib import HTTPConnection
 except ImportError:

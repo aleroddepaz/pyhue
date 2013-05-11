@@ -7,7 +7,7 @@ from mockhttpconnection import MockHTTPConnection
 pyhue.HTTPConnection = MockHTTPConnection
 
 
-class TestPyHue(unittest.TestCase):
+class TestPyhue(unittest.TestCase):
     def setUp(self):
         MockHTTPConnection.requests = []
         self.bridge = pyhue.Bridge('0.0.0.0', 'username')
@@ -19,7 +19,7 @@ class TestPyHue(unittest.TestCase):
         return re.match(pattern, string) is not None
 
 
-class TestLight(TestPyHue):
+class TestLight(TestPyhue):
     def test_get_lights(self):
         _ = self.bridge.lights
         self.assertMatches(MockHTTPConnection.requests[0],
@@ -45,7 +45,7 @@ class TestLight(TestPyHue):
                          'PUT /api/(.+?)/lights/1')
         
 
-class TestGroups(TestPyHue):
+class TestGroups(TestPyhue):
     def test_get_groups(self):
         _ = self.bridge.groups
         self.assertMatches(MockHTTPConnection.requests[0],
@@ -71,7 +71,7 @@ class TestGroups(TestPyHue):
                          'PUT /api/(.+?)/groups/1')
 
 
-class TestSchedules(TestPyHue):
+class TestSchedules(TestPyhue):
     def test_get_schedules(self):
         _ = self.bridge.schedules
         self.assertMatches(MockHTTPConnection.requests[0],
