@@ -50,7 +50,7 @@
         "name": "Group 1"
     }
 }
-# GET /api/<username>/groups/0
+# GET /api/<username>/groups/1
 {
     "action": {
         "on": true,

@@ -30,7 +30,9 @@ class Bridge(object):
 
     @property
     def groups(self):
-        _ = self._request('GET', ['groups'])
+        result = self._request('GET', ['groups'])
+        return [Group(self, i) for i in result.keys()]
+
 
 class Light(object):
     def __init__(self, bridge, _id):
@@ -60,3 +62,13 @@ class Light(object):
                 raise HueException, "Invalid attribute"
         else:
             object.__setattr__(self, attr, value)
+
+
+class Group(object):
+    def __init__(self, bridge, _id):
+        result = bridge._request('GET', ['groups', _id])
+        if any('error' in x for x in result):
+            raise HueException, result['error']['description']
+        
+        self.bridge = bridge
+        self.id = _id

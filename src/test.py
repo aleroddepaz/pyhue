@@ -84,6 +84,8 @@ class TestGroups(unittest.TestCase):
         _ = self.bridge.groups
         self.assertEqual(MockHTTPConnection.requests[0],
                          'GET /api/<username>/groups')
+        self.assertEqual(MockHTTPConnection.requests[1],
+                         'GET /api/<username>/groups/1')
     
     def test_get_group_attrs(self):
         pass
