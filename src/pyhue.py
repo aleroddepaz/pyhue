@@ -26,7 +26,8 @@ class Bridge(object):
     @property
     def lights(self):
         result = self._request('GET', ['lights'])
-        return [Light(self, i) for i in result.keys()]
+        lights = [Light(self, i) for i in result.keys()]
+        return sorted(lights, key=lambda x: x.id)
 
     @property
     def groups(self):
@@ -65,12 +66,12 @@ class ApiObject(object):
         self.attrs = result
         self.state = self.attrs.pop(self.STATE)
 
-    def _put_attrs(self, attrs):
+    def set_attrs(self, attrs):
         self.attrs.update(attrs)
         api_route = [self.ROUTE, self.id]
         return self.bridge._request('PUT', api_route, attrs)
 
-    def _put_state(self, state):
+    def set_state(self, state):
         self.state.update(state)
         api_route = [self.ROUTE, self.id, self.STATE]
         return self.bridge._request('PUT', api_route, state)
@@ -81,7 +82,7 @@ class Light(ApiObject):
     
     def __setattr__(self, attr, value):
         d = {attr: value}
-        result = self._put_attrs(d) if attr == 'name' else self._put_state(d)
+        result = self.set_attrs(d) if attr == 'name' else self.set_state(d)
         if any('error' in confirmation for confirmation in result):
             raise HueException, "Invalid attribute"
         else:
@@ -93,7 +94,7 @@ class Group(ApiObject):
     
     def __setattr__(self, attr, value):
         d = {attr: value}
-        result = self._put_attrs(d) if attr in self.attrs else self._put_state(d)
+        result = self.set_attrs(d) if attr in self.attrs else self.set_state(d)
         if any('error' in confirmation for confirmation in result):
             raise HueException, "Invalid attribute"
         else:
