@@ -63,51 +63,54 @@ class ApiObject(object):
             raise HueException, result['error']['description']
         self.bridge = bridge
         self.id = _id
-        self.attrs = result
-        self.state = self.attrs.pop(self.STATE)
+        for attr, value in result.items():
+            setattr(self, attr, value)
 
-    def set_attrs(self, attrs):
-        self.attrs.update(attrs)
+    def set(self, attr, value):
+        object.__setattr__(self, attr, value)
         api_route = [self.ROUTE, self.id]
-        return self.bridge._request('PUT', api_route, attrs)
-
-    def set_state(self, state):
-        self.state.update(state)
-        api_route = [self.ROUTE, self.id, self.STATE]
-        return self.bridge._request('PUT', api_route, state)
+        return self.bridge._request('PUT', api_route, {attr:value})
 
 
 class Light(ApiObject):
-    ROUTE, STATE = 'lights', 'state'
-    
+    ROUTE = 'lights'
+
+    def set_state(self, newstate):
+        self.state.update(newstate)
+        api_route = [self.ROUTE, self.id, 'state']
+        return self.bridge._request('PUT', api_route, newstate)
+        
     def __setattr__(self, attr, value):
-        d = {attr: value}
-        result = self.set_attrs(d) if attr == 'name' else self.set_state(d)
+        result = self.set_state({attr: value}) if attr in self.state else self.set(attr, value)
         if any('error' in confirmation for confirmation in result):
             raise HueException, "Invalid attribute"
 
-    def __getattr__(self, attr, default=None):
-        if attr in self.attrs:
-            return self.attrs[attr]
-        elif attr in self.state:
+    def __getattr__(self, attr):
+        if attr in self.state:
             return self.state[attr]
         else:
-            return object.__getattr__(self, attr, default)
+            return object.__getattr__(self, attr)
 
 
 class Group(ApiObject):
-    ROUTE, STATE = 'groups', 'action'
+    ROUTE = 'groups'
+    
+    def set_action(self, newstate):
+        self.action.update(newstate)
+        api_route = [self.ROUTE, self.id, 'action']
+        return self.bridge._request('PUT', api_route, newstate)
     
     def __setattr__(self, attr, value):
-        d = {attr: value}
-        result = self.set_attrs(d) if attr in self.attrs else self.set_state(d)
+        result = self.set_action({attr: value}) if attr in self.action else self.set(attr, value)
         if any('error' in confirmation for confirmation in result):
             raise HueException, "Invalid attribute"
 
-    def __getattr__(self, attr, default=None):
-        if attr in self.attrs:
-            return self.attrs[attr]
-        elif attr in self.state:
-            return self.state[attr]
+    def __getattr__(self, attr):
+        if attr in self.action:
+            return self.action[attr]
         else:
-            return object.__getattr__(self, attr, default)
+            return object.__getattribute__(self, attr)
+
+
+class Schedule(ApiObject):
+    ROUTE = 'schedules'
