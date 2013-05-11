@@ -34,61 +34,67 @@ class Bridge(object):
         return [Group(self, i) for i in result.keys()]
 
 
-class Light(object):
+class AssignableSetattr(type):
+    def __new__(mcls, name, bases, attrs): #@NoSelf
+        def __setattr__(self, attr, value):
+            object.__setattr__(self, attr, value)
+            
+        init_attrs = dict(attrs)
+        init_attrs['__setattr__'] = __setattr__
+        init_cls = super(AssignableSetattr, mcls).__new__(mcls, name, bases, init_attrs)
+        real_cls = super(AssignableSetattr, mcls).__new__(mcls, name, (init_cls,), attrs)
+        init_cls.__real_cls = real_cls
+        return init_cls
+
+    def __call__(cls, *args, **kwargs): #@NoSelf
+        self = super(AssignableSetattr, cls).__call__(*args, **kwargs)
+        real_cls = cls.__real_cls
+        self.__class__ = real_cls
+        return self
+
+
+class ApiObject(object):
+    __metaclass__ = AssignableSetattr
+    
     def __init__(self, bridge, _id):
-        result = bridge._request('GET', ['lights', _id])
+        result = bridge._request('GET', [self.API_ROUTE, _id])
         if any('error' in x for x in result):
             raise HueException, result['error']['description']
-        
         self.bridge = bridge
         self.id = _id
-        self.state = result.pop('state')
         self.attrs = result
-        self._initialized = True
+        self.state = self.attrs.pop(self.STATE)
 
-    def __put_state(self, state):
+    def _put_attrs(self, attrs):
+        self.attrs.update(attrs)
+        return self.bridge._request('PUT', [self.API_ROUTE, self.id], attrs)
+
+    def _put_state(self, state):
         self.state.update(state)
-        return self.bridge._request('PUT', ['lights', self.id, 'state'], state)
-
-    def __put_name(self, name):
-        self.attrs['name'] = name
-        return self.bridge._request('PUT', ['lights', self.id], {'name': name})
+        return self.bridge._request('PUT', [self.API_ROUTE, self.id, self.STATE], state)
 
     def __setattr__(self, attr, value):
-        if getattr(self, '_initialized', False):
-            pname, pstate = self.__put_name, self.__put_state
-            result = pname(value) if attr == 'name' else pstate({attr: value})
-            if any('error' in confirmation for confirmation in result):
-                raise HueException, "Invalid attribute"
-        else:
-            object.__setattr__(self, attr, value)
+        d = {attr: value}
+        result = self._put_attrs(d) if attr in self.attrs else self._put_state(d)
+        if any('error' in confirmation for confirmation in result):
+            raise HueException, "Invalid attribute"
 
 
-class Group(object):
-    def __init__(self, bridge, _id):
-        result = bridge._request('GET', ['groups', _id])
-        if any('error' in x for x in result):
-            raise HueException, result['error']['description']
-        
-        self.bridge = bridge
-        self.id = _id
-        self.action = result.pop('action')
-        self.attrs = result
-        self._initialized = True
-
-    def __put_action(self, action):
-        self.action.update(action)
-        return self.bridge._request('PUT', ['groups', self.id, 'action'], action)
-
-    def __put_name(self, name):
-        self.attrs['name'] = name
-        return self.bridge._request('PUT', ['groups', self.id], {'name': name})
-
+class Light(ApiObject):
+    API_ROUTE, STATE = 'lights', 'state'
+    
     def __setattr__(self, attr, value):
-        if getattr(self, '_initialized', False):
-            pname, paction = self.__put_name, self.__put_action
-            result = pname(value) if attr == 'name' else paction({attr: value})
-            if any('error' in confirmation for confirmation in result):
-                raise HueException, "Invalid attribute"
-        else:
-            object.__setattr__(self, attr, value)
+        d = {attr: value}
+        result = self._put_attrs(d) if attr in self.attrs else self._put_state(d)
+        if any('error' in confirmation for confirmation in result):
+            raise HueException, "Invalid attribute"
+
+
+class Group(ApiObject):
+    API_ROUTE, STATE = 'groups', 'action'
+    
+    def __setattr__(self, attr, value):
+        d = {attr: value}
+        result = self._put_attrs(d) if attr in self.attrs else self._put_state(d)
+        if any('error' in confirmation for confirmation in result):
+            raise HueException, "Invalid attribute"

@@ -30,6 +30,7 @@ class MockHTTPConnection(object):
         Mock HTTP request. Adds the method and the route
         of the request to the list of mock requests
         """
+        print '%s %s' % (method, route)
         MockHTTPConnection.requests.append('%s %s' % (method, route))
         
     def getresponse(self):
@@ -94,5 +95,8 @@ class TestGroups(unittest.TestCase):
                          'PUT /api/<username>/groups/1/action')
     
     def test_set_group_attrs(self):
-        pass
+        groups = self.bridge.groups
+        groups[0].name = "Another Mock Group"
+        self.assertEqual(MockHTTPConnection.requests[2],
+                         'PUT /api/<username>/groups/1')
 
