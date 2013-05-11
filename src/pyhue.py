@@ -23,16 +23,25 @@ class Bridge(object):
         conn.request(method, str_route, content)
         return json.loads(conn.getresponse().read())
 
+    def __get_api_objects(self, cls):
+        result = self._request('GET', [cls.ROUTE])
+        objects = [cls(self, i) for i in result.keys()]
+        return sorted(objects, key=lambda x: x.id)
+
     @property
     def lights(self):
-        result = self._request('GET', ['lights'])
-        lights = [Light(self, i) for i in result.keys()]
-        return sorted(lights, key=lambda x: x.id)
+        return self.__get_api_objects(Light)
 
     @property
     def groups(self):
-        result = self._request('GET', ['groups'])
-        return [Group(self, i) for i in result.keys()]
+        return self.__get_api_objects(Group)
+    
+    @property
+    def schedules(self):
+        return self.__get_api_objects(Schedule)
+    
+    def add_schedule(self, schedule_attrs):
+        pass
 
 
 class AssignableSetattr(type):
