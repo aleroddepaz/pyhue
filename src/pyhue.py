@@ -41,7 +41,7 @@ class Bridge(object):
         return self.__get_api_objects(Schedule)
     
     def add_schedule(self, schedule_attrs):
-        pass
+        return self._request('POST', ['schedules'], schedule_attrs)
 
 
 class AssignableSetattr(type):
@@ -128,3 +128,7 @@ class Schedule(ApiObject):
         result = self.set(attr, value)
         if any('error' in confirmation for confirmation in result):
             raise HueException, "Invalid attribute"
+    
+    def __del__(self):
+        self.bridge._request('DELETE', [self.ROUTE, self.id])
+        return object.__del__(self)

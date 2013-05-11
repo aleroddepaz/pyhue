@@ -146,4 +146,4 @@ class TestSchedules(unittest.TestCase):
         schedules = self.bridge.schedules
         del schedules[0]
         self.assertEqual(MockHTTPConnection.requests[2],
-                         'DELETE /api/<username>/schedules/0')
+                         'DELETE /api/<username>/schedules/1')
