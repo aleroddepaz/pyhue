@@ -91,7 +91,7 @@ class TestGroups(unittest.TestCase):
         groups = self.bridge.groups
         groups[0].on = True
         self.assertEqual(MockHTTPConnection.requests[2],
-                         'PUT /api/<username>/groups/1/state')
+                         'PUT /api/<username>/groups/1/action')
     
     def test_set_group_attrs(self):
         pass

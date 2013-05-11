@@ -72,3 +72,23 @@ class Group(object):
         
         self.bridge = bridge
         self.id = _id
+        self.action = result.pop('action')
+        self.attrs = result
+        self._initialized = True
+
+    def __put_action(self, action):
+        self.action.update(action)
+        return self.bridge._request('PUT', ['groups', self.id, 'action'], action)
+
+    def __put_name(self, name):
+        self.attrs['name'] = name
+        return self.bridge._request('PUT', ['groups', self.id], {'name': name})
+
+    def __setattr__(self, attr, value):
+        if getattr(self, '_initialized', False):
+            pname, paction = self.__put_name, self.__put_action
+            result = pname(value) if attr == 'name' else paction({attr: value})
+            if any('error' in confirmation for confirmation in result):
+                raise HueException, "Invalid attribute"
+        else:
+            object.__setattr__(self, attr, value)
