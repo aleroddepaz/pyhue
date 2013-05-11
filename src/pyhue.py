@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import json, logging
+import json
+import logging
 try:
     from httplib import HTTPConnection
 except ImportError:
@@ -24,9 +25,9 @@ class Bridge(object):
     def _request(self, method, route, data={}):
         content = json.dumps(data).lower()
         str_route = '/'.join(['/api', self.username] + route)
-        
+
         logger.debug('%s %s%s' % (method, self.ip_address, str_route))
-        
+
         conn = HTTPConnection(self.ip_address)
         conn.request(method, str_route, content)
         return json.loads(conn.getresponse().read())
@@ -43,28 +44,29 @@ class Bridge(object):
     @property
     def groups(self):
         return self.__get_api_objects(Group)
-    
+
     @property
     def schedules(self):
         return self.__get_api_objects(Schedule)
-    
+
     def add_schedule(self, schedule_attrs):
         return self._request('POST', ['schedules'], schedule_attrs)
 
 
 class AssignableSetattr(type):
-    def __new__(mcls, name, bases, attrs): #@NoSelf
+    def __new__(mcls, name, bases, attrs):  # @NoSelf
         def __setattr__(self, attr, value):
             object.__setattr__(self, attr, value)
-            
+
         init_attrs = dict(attrs)
         init_attrs['__setattr__'] = __setattr__
-        init_cls = super(AssignableSetattr, mcls).__new__(mcls, name, bases, init_attrs)
-        real_cls = super(AssignableSetattr, mcls).__new__(mcls, name, (init_cls,), attrs)
+        base = super(AssignableSetattr, mcls)
+        init_cls = base.__new__(mcls, name, bases, init_attrs)
+        real_cls = base.__new__(mcls, name, (init_cls,), attrs)
         init_cls.__real_cls = real_cls
         return init_cls
 
-    def __call__(cls, *args, **kwargs): #@NoSelf
+    def __call__(cls, *args, **kwargs):  # @NoSelf
         self = super(AssignableSetattr, cls).__call__(*args, **kwargs)
         real_cls = cls.__real_cls
         self.__class__ = real_cls
@@ -73,11 +75,11 @@ class AssignableSetattr(type):
 
 class ApiObject(object):
     __metaclass__ = AssignableSetattr
-    
+
     def __init__(self, bridge, _id):
         result = bridge._request('GET', [self.ROUTE, _id])
         if any('error' in x for x in result):
-            raise HueException, result['error']['description']
+            raise HueException(result['error']['description'])
         self.bridge = bridge
         self.id = _id
         for attr, value in result.items():
@@ -86,7 +88,7 @@ class ApiObject(object):
     def set(self, attr, value):
         object.__setattr__(self, attr, value)
         api_route = [self.ROUTE, self.id]
-        return self.bridge._request('PUT', api_route, {attr:value})
+        return self.bridge._request('PUT', api_route, {attr: value})
 
 
 class Light(ApiObject):
@@ -96,11 +98,14 @@ class Light(ApiObject):
         self.state.update(newstate)
         api_route = [self.ROUTE, self.id, 'state']
         return self.bridge._request('PUT', api_route, newstate)
-        
+
     def __setattr__(self, attr, value):
-        result = self.set_state({attr: value}) if attr in self.state else self.set(attr, value)
+        if attr in self.state:
+            result = self.set_state({attr: value})
+        else:
+            result = self.set(attr, value)
         if any('error' in confirmation for confirmation in result):
-            raise HueException, "Invalid attribute"
+            raise HueException("Invalid attribute")
 
     def __getattr__(self, attr):
         if attr in self.state:
@@ -111,16 +116,19 @@ class Light(ApiObject):
 
 class Group(ApiObject):
     ROUTE = 'groups'
-    
+
     def set_action(self, newstate):
         self.action.update(newstate)
         api_route = [self.ROUTE, self.id, 'action']
         return self.bridge._request('PUT', api_route, newstate)
-    
+
     def __setattr__(self, attr, value):
-        result = self.set_action({attr: value}) if attr in self.action else self.set(attr, value)
+        if attr in self.action:
+            result = self.set_action({attr: value})
+        else:
+            result = self.set(attr, value)
         if any('error' in confirmation for confirmation in result):
-            raise HueException, "Invalid attribute"
+            raise HueException("Invalid attribute")
 
     def __getattr__(self, attr):
         if attr in self.action:
@@ -135,7 +143,7 @@ class Schedule(ApiObject):
     def __setattr__(self, attr, value):
         result = self.set(attr, value)
         if any('error' in confirmation for confirmation in result):
-            raise HueException, "Invalid attribute"
-    
+            raise HueException("Invalid attribute")
+
     def __del__(self):
         self.bridge._request('DELETE', [self.ROUTE, self.id])
