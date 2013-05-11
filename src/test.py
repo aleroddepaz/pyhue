@@ -62,13 +62,13 @@ class TestLight(unittest.TestCase):
         self.assertEqual(MockHTTPConnection.requests[1],
                          'GET /api/<username>/lights/1')
         
-    def test_put_state(self):
+    def test_set_light_state(self):
         lights = self.bridge.lights
         lights[0].on = True
         self.assertEqual(MockHTTPConnection.requests[2],
                          'PUT /api/<username>/lights/1/state')
 
-    def test_put_name(self):
+    def test_set_light_attrs(self):
         lights = self.bridge.lights
         lights[0].name = "Another Mock Lamp"
         self.assertEqual(MockHTTPConnection.requests[2],
@@ -80,13 +80,19 @@ class TestGroups(unittest.TestCase):
         MockHTTPConnection.requests = []
         self.bridge = pyhue.Bridge(None, '<username>')
         
-    def test_get_groups(self):
+    def test_groups(self):
         _ = self.bridge.groups
         self.assertEqual(MockHTTPConnection.requests[0],
                          'GET /api/<username>/groups')
         self.assertEqual(MockHTTPConnection.requests[1],
                          'GET /api/<username>/groups/1')
+
+    def test_set_group_state(self):
+        groups = self.bridge.groups
+        groups[0].on = True
+        self.assertEqual(MockHTTPConnection.requests[2],
+                         'PUT /api/<username>/groups/1/state')
     
-    def test_get_group_attrs(self):
+    def test_set_group_attrs(self):
         pass
 
