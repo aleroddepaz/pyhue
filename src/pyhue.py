@@ -85,8 +85,14 @@ class Light(ApiObject):
         result = self.set_attrs(d) if attr == 'name' else self.set_state(d)
         if any('error' in confirmation for confirmation in result):
             raise HueException, "Invalid attribute"
+
+    def __getattr__(self, attr, default=None):
+        if attr in self.attrs:
+            return self.attrs[attr]
+        elif attr in self.state:
+            return self.state[attr]
         else:
-            object.__setattr__(self, attr, value)
+            return object.__getattr__(self, attr, default)
 
 
 class Group(ApiObject):
@@ -97,5 +103,11 @@ class Group(ApiObject):
         result = self.set_attrs(d) if attr in self.attrs else self.set_state(d)
         if any('error' in confirmation for confirmation in result):
             raise HueException, "Invalid attribute"
+
+    def __getattr__(self, attr, default=None):
+        if attr in self.attrs:
+            return self.attrs[attr]
+        elif attr in self.state:
+            return self.state[attr]
         else:
-            object.__setattr__(self, attr, value)
+            return object.__getattr__(self, attr, default)

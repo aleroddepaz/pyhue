@@ -69,3 +69,28 @@
     "scenes": {
     }
 }
+# GET /api/<username>/schedules
+{
+  "1":{
+      "name":"Wake up"
+  }
+}
+# POST /api/<username>/schedules
+[{ "success":{"id": "2"} }]
+# GET /api/<username>/schedules/1
+{
+    "name": "Wake up",
+    "description": "My wake up alarm",
+    "command": {
+        "address": "/api/0/groups/1/action",
+        "method": "PUT",
+        "body": {
+            "on": true
+        }
+    },
+    "time": "2011-03-30T14:24:40"
+}
+# PUT /api/<username>/schedules/1
+[{ "success": {"/schedules/1/name": "Wake up"}}]
+# DELETE /api/<username>/schedules/1
+[{"success": "/schedules/1 deleted."}]

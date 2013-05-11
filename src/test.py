@@ -55,7 +55,7 @@ class TestLight(unittest.TestCase):
     def tearDown(self):
         self.bridge = None
         
-    def test_lights(self):
+    def test_get_lights(self):
         _ = self.bridge.lights
         self.assertEqual(MockHTTPConnection.requests[0],
                          'GET /api/<username>/lights')
@@ -85,7 +85,7 @@ class TestGroups(unittest.TestCase):
         MockHTTPConnection.requests = []
         self.bridge = pyhue.Bridge(None, '<username>')
         
-    def test_groups(self):
+    def test_get_groups(self):
         _ = self.bridge.groups
         self.assertEqual(MockHTTPConnection.requests[0],
                          'GET /api/<username>/groups')
@@ -109,3 +109,41 @@ class TestGroups(unittest.TestCase):
         self.assertEqual(MockHTTPConnection.requests[2],
                          'PUT /api/<username>/groups/1')
 
+class TestSchedules(unittest.TestCase):
+    def setUp(self):
+        MockHTTPConnection.requests = []
+        self.bridge = pyhue.Bridge(None, '<username>')
+    
+    def test_get_schedules(self):
+        _ = self.bridge.schedules
+        self.assertEqual(MockHTTPConnection.requests[0],
+                         'GET /api/<username>/schedules')
+        self.assertEqual(MockHTTPConnection.requests[1],
+                         'GET /api/<username>/schedules/1')
+
+    def test_add_schedule(self):
+        schedule_attrs = {
+            "name": "Wake up",
+            "description": "My wake up alarm",
+            "command": {
+                "address": "/api/0/groups/1/action",
+                "method": "PUT",
+                "body": { "on": True }
+            },
+            "time": "2011-03-30T14:24:40"
+        }
+        self.bridge.add_schedule(schedule_attrs)
+        self.assertEqual(MockHTTPConnection.requests[0],
+                         'POST /api/<username>/schedules')
+    
+    def test_set_schedule_attrs(self):
+        schedules = self.bridge.schedules
+        schedules[0].name = "Another Schedule Name"
+        self.assertEqual(MockHTTPConnection.requests[2],
+                         'PUT /api/<username>/schedules/0')
+
+    def test_delete_schedule(self):
+        schedules = self.bridge.schedules
+        del schedules[0]
+        self.assertEqual(MockHTTPConnection.requests[2],
+                         'DELETE /api/<username>/schedules/0')
