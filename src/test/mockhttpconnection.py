@@ -7,7 +7,7 @@ class MockHTTPConnection(object):
     Mock class for HTTPConnection
     """
     requests = []
-    
+
     def __init__(self, ip_address=None):
         with open('responses') as f:
             self.responses = collections.defaultdict(list)
@@ -29,10 +29,10 @@ class MockHTTPConnection(object):
         of the request to the list of mock requests
         """
         MockHTTPConnection.requests.append('%s %s' % (method, route))
-        
+
     def getresponse(self):
         """
-        Mock response. Returns the corresponding entry of the 
+        Mock response. Returns the corresponding entry of the
         last mock request, or the error message if it does not exist
         """
         try:
