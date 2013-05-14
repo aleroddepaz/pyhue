@@ -39,7 +39,8 @@ class Bridge(object):
         str_route = '/'.join(['/api', self.username] + route)
         conn = HTTPConnection(self.ip_address)
         conn.request(method, str_route, content)
-        return json.loads(conn.getresponse().read())
+        response = conn.getresponse()
+        return json.loads(response.read().decode())
 
     def __get_api_objects(self, cls):
         result = self._request('GET', [cls.ROUTE])

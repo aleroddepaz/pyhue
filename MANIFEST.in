@@ -2,5 +2,4 @@ include LICENSE
 include MANIFEST.in
 include README.md
 include setup.py
-include pyhue.py
 recursive-include src/test *.py
