@@ -2,15 +2,27 @@
 # -*- coding: utf-8 -*-
 
 import json
-import logging
 try:
     from httplib import HTTPConnection
 except ImportError:
     from http.client import HTTPConnection
 
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger('pyhue')
+kelvin2mired = lambda k: 10**6 / k
+huedegree2hue = lambda d: d* 182
+
+
+def cmyk2hsb(c, m, y, k):
+    pass
+
+
+def rgb2xy(r, g, b):
+    X = 0.412453 * r + 0.357580 * g + 0.180423 * b
+    Y = 0.212671 * r + 0.715160 * g + 0.072169 * b
+    Z = 0.019334 * r + 0.119193 * g + 0.950227 * b
+    x = X / (X+Y+Z)
+    y = Y / (X+Y+Z)
+    return x, y
 
 
 class HueException(Exception):
@@ -25,9 +37,6 @@ class Bridge(object):
     def _request(self, method, route, data={}):
         content = json.dumps(data).lower()
         str_route = '/'.join(['/api', self.username] + route)
-
-        logger.debug('%s %s%s' % (method, self.ip_address, str_route))
-
         conn = HTTPConnection(self.ip_address)
         conn.request(method, str_route, content)
         return json.loads(conn.getresponse().read())
@@ -48,6 +57,9 @@ class Bridge(object):
     @property
     def schedules(self):
         return self.__get_api_objects(Schedule)
+    
+    def get_light(self, light_id):
+        return Light(self, light_id)
 
     def add_schedule(self, schedule_attrs):
         return self._request('POST', ['schedules'], schedule_attrs)
@@ -94,14 +106,14 @@ class ApiObject(object):
 class Light(ApiObject):
     ROUTE = 'lights'
 
-    def set_state(self, newstate):
-        self.state.update(newstate)
+    def update(self, **kw):
+        self.state.update(kw)
         api_route = [self.ROUTE, self.id, 'state']
-        return self.bridge._request('PUT', api_route, newstate)
+        return self.bridge._request('PUT', api_route, kw)
 
     def __setattr__(self, attr, value):
         if attr in self.state:
-            result = self.set_state({attr: value})
+            result = self.update(**{attr: value})
         else:
             result = self.set(attr, value)
         if any('error' in confirmation for confirmation in result):
@@ -117,14 +129,14 @@ class Light(ApiObject):
 class Group(ApiObject):
     ROUTE = 'groups'
 
-    def set_action(self, newstate):
-        self.action.update(newstate)
+    def update(self, **kw):
+        self.action.update(kw)
         api_route = [self.ROUTE, self.id, 'action']
-        return self.bridge._request('PUT', api_route, newstate)
+        return self.bridge._request('PUT', api_route, kw)
 
     def __setattr__(self, attr, value):
         if attr in self.action:
-            result = self.set_action({attr: value})
+            result = self.update(**{attr: value})
         else:
             result = self.set(attr, value)
         if any('error' in confirmation for confirmation in result):

@@ -37,6 +37,12 @@ class TestLight(TestPyhue):
         lights = self.bridge.lights
         lights[0].hue = 0
         self.assertEqual(lights[0].hue, 0)
+        
+    def test_update_light_state(self):
+        lights = self.bridge.lights
+        lights[0].hue = 0
+        self.assertMatches(MockHTTPConnection.requests[2],
+                           'PUT /api/(.+?)/lights/1/state')
 
     def test_set_light_attrs(self):
         lights = self.bridge.lights
