@@ -20,6 +20,11 @@ class TestPyhue(unittest.TestCase):
 
 
 class TestLight(TestPyhue):
+    def test_get_light(self):
+        _ = self.bridge.get_light('1')
+        self.assertMatches(MockHTTPConnection.requests[0],
+                           'GET /api/(.+?)/lights/1')
+    
     def test_get_lights(self):
         _ = self.bridge.lights
         self.assertMatches(MockHTTPConnection.requests[0],
