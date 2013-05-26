@@ -12,13 +12,7 @@ Python library for the Philips Hue personal lighting system.
 Installation
 ------------
 
-.. raw:: html
-
-    <p>
-    You can install pyhue with <code>pip install pyhue</code> or
-    <a href="http://raw.github.com/alexrdp90/pyhue/master/src/pyhue.py">download <code>pyhue.py</code></a>
-    and place it in your project directory.
-    </p>
+You can install pyhue with ``pip install pyhue`` or `download pyhue.py <http://raw.github.com/alexrdp90/pyhue/master/src/pyhue.py>`_ and place it in your project directory.
 
 
 Example
@@ -44,7 +38,6 @@ Features
 
 See the complete documentation of the Philips Hue personal lighting system on http://developers.meethue.com.
 
-.. _download ``pyhue.py``: <>
 .. _Lights: http://developers.meethue.com/1_lightsapi.html
 .. _Groups: http://developers.meethue.com/2_groupsapi.html
 .. _Schedules: http://developers.meethue.com/3_schedulesapi.html
@@ -54,18 +47,20 @@ See the complete documentation of the Philips Hue personal lighting system on ht
 
 setup(
     name = 'pyhue',
-    version = '0.5',
+    version = '0.6',
     license = 'GPLv3',
     description = 'Python library for the Philips Hue personal lighting system',
     long_description = long_description,
     author = 'Alejandro Rodas',
     author_email = 'alexrdp90@gmail.com',
-    url = 'http://alexrdp90.github.com/pyhue',
+    url = 'http://github.com/alexrdp90/pyhue',
     download_url = 'http://pypi.python.org/pypi/pyhue',
     package_dir = {'': 'src'},
     py_modules = ['pyhue'],
     classifiers = [
+        'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
         'Topic :: Software Development :: Libraries :: Python Modules',
