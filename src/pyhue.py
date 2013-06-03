@@ -53,7 +53,7 @@ class Bridge(object):
 
     @property
     def groups(self):
-        return self.__get_api_objects(Group)
+        return [Group(self, 0)] + self.__get_api_objects(Group)
 
     @property
     def schedules(self):
