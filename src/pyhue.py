@@ -35,9 +35,10 @@ class Bridge(object):
         self.username = username
 
     def _request(self, method, route, data={}):
+        content = json.dumps(data).lower()
+        list_route = map(str, ['/api', self.username] + route)
+        str_route = '/'.join(list_route)
         try:
-            content = json.dumps(data).lower()
-            str_route = '/'.join(['/api', self.username] + route)
             conn = HTTPConnection(self.ip_address)
             conn.request(method, str_route, content)
             response = conn.getresponse()
@@ -56,7 +57,7 @@ class Bridge(object):
 
     @property
     def groups(self):
-        return [Group(self, "0")] + self.__get_api_objects(Group)
+        return [Group(self, 0)] + self.__get_api_objects(Group)
 
     @property
     def schedules(self):

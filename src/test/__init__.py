@@ -64,6 +64,10 @@ class TestGroups(TestPyhue):
         self.assertMatches(MockHTTPConnection.requests[1],
                            'GET /api/(.+?)/groups/1')
 
+    def test_get_num_groups(self):
+        groups = self.bridge.groups
+        self.assertEqual(len(groups), 2)
+
     def test_set_group_state(self):
         groups = self.bridge.groups
         groups[0].on = True

@@ -50,6 +50,25 @@
         "name": "Group 1"
     }
 }
+# GET /api/username/groups/0
+{
+    "action": {
+        "on": true,
+        "hue": 0,
+        "effect": "none",
+        "bri": 100,
+        "sat": 100,
+        "ct": 500,
+        "xy": [0.5, 0.5]
+    },
+    "lights": [
+        "1",
+        "2"
+    ],
+    "name": "default",
+    "scenes": {
+    }
+}
 # GET /api/username/groups/1
 {
     "action": {
