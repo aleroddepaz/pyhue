@@ -35,12 +35,15 @@ class Bridge(object):
         self.username = username
 
     def _request(self, method, route, data={}):
-        content = json.dumps(data).lower()
-        str_route = '/'.join(['/api', self.username] + route)
-        conn = HTTPConnection(self.ip_address)
-        conn.request(method, str_route, content)
-        response = conn.getresponse()
-        return json.loads(response.read().decode())
+        try:
+            content = json.dumps(data).lower()
+            str_route = '/'.join(['/api', self.username] + route)
+            conn = HTTPConnection(self.ip_address)
+            conn.request(method, str_route, content)
+            response = conn.getresponse()
+            return json.loads(response.read().decode())
+        except:
+            raise HueException("Not able to connect to the bridge")
 
     def __get_api_objects(self, cls):
         result = self._request('GET', [cls.ROUTE])
