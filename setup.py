@@ -47,7 +47,7 @@ See the complete documentation of the Philips Hue personal lighting system on ht
 
 setup(
     name = 'pyhue',
-    version = '0.7',
+    version = '0.7.1',
     license = 'GPLv3',
     description = 'Python library for the Philips Hue personal lighting system',
     long_description = long_description,
