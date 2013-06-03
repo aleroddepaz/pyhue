@@ -36,8 +36,7 @@ class Bridge(object):
 
     def _request(self, method, route, data={}):
         content = json.dumps(data).lower()
-        list_route = map(str, ['/api', self.username] + route)
-        str_route = '/'.join(list_route)
+        str_route = '/'.join(['/api', self.username] + route)
         try:
             conn = HTTPConnection(self.ip_address)
             conn.request(method, str_route, content)
@@ -57,7 +56,7 @@ class Bridge(object):
 
     @property
     def groups(self):
-        return [Group(self, 0)] + self.__get_api_objects(Group)
+        return [Group(self, "0")] + self.__get_api_objects(Group)
 
     @property
     def schedules(self):
@@ -96,7 +95,7 @@ class ApiObject(object):
     def __init__(self, bridge, _id):
         result = bridge._request('GET', [self.ROUTE, _id])
         if any('error' in x for x in result):
-            raise HueException(result['error']['description'])
+            raise HueException(result[0]['error']['description'])
         self.bridge = bridge
         self.id = _id
         for attr, value in result.items():
