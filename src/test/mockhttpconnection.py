@@ -1,43 +1,35 @@
-import StringIO
-import collections
+from StringIO import StringIO
+from collections import defaultdict
 
 
 class MockHTTPConnection(object):
-    """
-    Mock class for HTTPConnection
-    """
-    requests = []
+    """Mock class for HTTPConnection"""
 
     def __init__(self, ip_address=None):
+        self.request = None
+        self.responses = defaultdict(list)
         with open('responses') as f:
-            self.responses = collections.defaultdict(list)
-            self.__load_responses(f)
+            self._load_responses(f)
         for key, value in self.responses.items():
             self.responses[key] = ''.join(value)
 
-    def __load_responses(self, f):
+    def _load_responses(self, lines):
         actual = ''
-        for line in f:
+        for line in lines:
             if line.startswith('#'):
                 actual = line[1:].strip()
             else:
                 self.responses[actual].append(line)
 
     def request(self, method, route, content):
-        """
-        Mock HTTP request. Adds the method and the route
-        of the request to the list of mock requests
-        """
-        MockHTTPConnection.requests.append('%s %s' % (method, route))
+        """Registers a mock HTTP request"""
+        self.request = '%s %s' % (method, route)
 
     def getresponse(self):
-        """
-        Mock response. Returns the corresponding entry of the
-        last mock request, or the error message if it does not exist
-        """
+        """Returns a mock response corresponding to the last request"""
         try:
-            response = self.responses[MockHTTPConnection.requests[-1]]
+            response = self.responses[self.request]
         except KeyError:
-            response = '{"error": {"description": <description>}}'
-        finally:
-            return StringIO.StringIO(response)
+            response = '{"error": {"description": "mock description"}}'
+        return StringIO(response)
+
